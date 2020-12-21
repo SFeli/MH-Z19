@@ -618,8 +618,6 @@ byte MHZ19::read(byte inBytes[MHZ19_DATA_LEN], Command_Type commandnumber)
     if (this->storage.settings.printcomm == true)
         printstream(inBytes, false, this->errorCode);
 
-    /* clear remaning data in the buffer */
-
     return this->errorCode;
 }
 
