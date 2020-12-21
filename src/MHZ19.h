@@ -199,5 +199,7 @@ class MHZ19
 
 	/* converts bytes to integers according to *256 and + value */
 	unsigned int makeInt(byte high, byte low);
+
+	void cleanUp(uint8_t cnt);
 };
 #endif
