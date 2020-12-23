@@ -57,8 +57,11 @@ class MHZ19
 
 	/* Sets Span to desired value below 10,000*/
 	void zeroSpan(int span = 2000);
+	
+	/* Sets Cycle to desired value below 100*/
+	void setCycle(int cycle = 5);
 
-    /* Sets "filter mode" to ON or OFF & mode type (see example) */
+        /* Sets "filter mode" to ON or OFF & mode type (see example) */
 	void setFilter(bool isON = true, bool isCleared = true);
  
 	/*########################-Get Functions-##########################*/
@@ -80,6 +83,9 @@ class MHZ19
 
 	/* reads ABC-Status using command 125 / 0x7D */
 	bool getABC();
+	
+	/* reads timer Cycle-length command 126 / 0x7E */
+	int getCycle();
 
 	/* Returns accuracy value if available */
 	byte getAccuracy(bool force = true);
@@ -126,19 +132,21 @@ class MHZ19
 	typedef enum COMMAND_TYPE
 	{
 		RECOVER = 0,			// 0 Recovery Reset
-		ABC = 1,				// 1 ABC Mode ON/OFF
-		GETABC = 2,				// 2 Get ABC - Status 0x79
-		RAWCO2 = 3,				// 3 Raw CO2
-		CO2UNLIM = 4,			// 4 Temp for unsigned, CO2 Unlimited
-		CO2LIM = 5,				// 5 Temp for signed, CO2 limited
-		ZEROCAL = 6,			// 6 Zero Calibration
-		SPANCAL = 7,			// 7 Span Calibration
-		RANGE = 8,				// 8 Range
-		GETRANGE = 9,			// 9 Get Range
-		GETCALPPM = 10,			// 10 Get Background CO2
-		GETFIRMWARE = 11,		// 11 Get Firmware Version
-		GETLASTRESP = 12,		// 12 Get Last Response
-		GETEMPCAL = 13			// 13 Get Temp Calibration
+		ABC = 1,			// 1 ABC Mode ON/OFF
+		GETABC = 2,			// 2 Get ABC - Status 0x79
+		CYCLE = 3,			// 3 Set Cycle
+		RAWCO2 = 4,			// 4 Raw CO2
+		CO2UNLIM = 5,			// 5 Temp for unsigned, CO2 Unlimited
+		CO2LIM = 6,			// 6 Temp for signed, CO2 limited
+		ZEROCAL = 7,			// 7 Zero Calibration
+		SPANCAL = 8,			// 8 Span Calibration
+		RANGE = 9,			// 9 Range
+		GETRANGE = 10,			// 10 Get Range
+		GETCALPPM = 11,			// 11 Get Background CO2
+		GETFIRMWARE = 12,		// 12 Get Firmware Version
+		GETLASTRESP = 13,		// 13 Get Last Response
+		GETEMPCAL = 14,			// 14 Get Temp Calibration
+		GETCYCLE = 15			// 15 Get Cycle
 	} Command_Type;
 
 	/* Memory Pool */
