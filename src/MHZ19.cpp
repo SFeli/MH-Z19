@@ -1,24 +1,26 @@
-/*   Version: 1.5.3  |  License: LGPLv3  |  Author: JDWifWaf@gmail.com   */
+/*   Version: 1.5.4  |  License: LGPLv3  |  Author: JDWifWaf@gmail.com   */
 
 #include "MHZ19.h"
 
 /*#########################-Commands-##############################*/
 
-byte Commands[14] = {
+byte Commands[16] = {
     120,	// 0 Recovery Reset        Changes operation mode and performs MCU reset
     121,	// 1 ABC Mode ON/OFF       Turns ABC logic on or off (b[3] == 0xA0 - on, 0x00 - off)
-    125,	// 2 Get ABC logic status  (1 - enabled, 0 - disabled)	
-    132,	// 3 Raw CO2
-    133,	// 4 Temp float, CO2 Unlimited
-    134,	// 5 Temp integer, CO2 limited
-    135,	// 6 Zero Calibration
-    136,	// 7 Span Calibration
-    153,	// 8 Range
-    155,	// 9 Get Range
-    156,	// 10 Get Background CO2
-    160,	// 11 Get Firmware Version
-    162,	// 12 Get Last Response
-    163		// 13 Get Temp Calibration
+    125,	// 2 Get ABC logic status  (1 - enabled, 0 - disabled)
+    126,    // 3 Set- cycle length (default 5 sek) b[4..5] 0x7E
+    132,	// 4 Raw CO2
+    133,	// 5 Temp float, CO2 Unlimited
+    134,	// 6 Temp integer, CO2 limited
+    135,	// 7 Zero Calibration
+    136,	// 8 Span Calibration
+    153,	// 9 Set Range 0x99
+    155,	// 10 Get Range 0x9B
+    156,	// 11 Get Background CO2
+    160,	// 12 Get Firmware Version 0xA0
+    162,	// 13 Get Last Response
+    163,	// 14 Get Temp Calibration
+    126     // 15 Get - CYCLE
 };
 
 /*#####################-Initiation Functions-#####################*/
@@ -73,6 +75,24 @@ void MHZ19::zeroSpan(int span)
     else
         provisioning(SPANCAL, span);
  
+    return;
+}
+
+ void MHZ19::setCycle(int cycle)
+{
+    if (cycle > 100)
+    {
+        #if defined (ESP32) && (MHZ19_ERRORS)
+        ESP_LOGE(TAG_MHZ19, "Invalid Cycle value (5 - 100)");   
+        #elif MHZ19_ERRORS
+        Serial.println("!ERROR: Invalid Cycle value (5 - 100)");
+        #endif 
+    }
+    else {
+        Serial.print("Provisoning cycle: ");
+        Serial.println(cycle);
+        provisioning(CYCLE, cycle);
+    }
     return;
 }
 
@@ -349,6 +369,17 @@ bool MHZ19::getABC()
         return 1;
 }
 
+int MHZ19::getCycle()
+{
+    /* check get Cycle length (5 Sek default) */
+    provisioning(GETCYCLE);
+
+    if (this->errorCode == RESULT_OK)
+        /* convert MH-Z19 memory value and return */
+        return (int)makeInt(this->storage.responses.STAT[2], this->storage.responses.STAT[3]);
+    else
+        return 1;
+}
 /*######################-Utility Functions-########################*/
 
 void MHZ19::verify()
@@ -523,6 +554,17 @@ void MHZ19::constructCommand(Command_Type commandtype, int inData)
         makeByte(inData, &High, &Low);
         asemblecommand[6] = High;
         asemblecommand[7] = Low;
+        break;
+    case CYCLE:
+        makeByte(inData, &High, &Low);
+        Serial.print("inData :");
+        Serial.println(inData);
+        asemblecommand[4] = High;
+        asemblecommand[5] = Low;
+        asemblecommand[3] = byte(2);      // b[3] should be 2 to update the length
+        Serial.printf("asemblecommand : 4-> %x / 5-> %x / 3-> %x \n", asemblecommand[4], asemblecommand[5] , asemblecommand[3] );
+        break;
+    case GETCYCLE:
         break;
     case GETRANGE:
         break;
